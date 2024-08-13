@@ -1,0 +1,15 @@
+{
+  "name": "websockets",
+  "module": "index.js",
+  "type": "module",
+  "scripts":{
+    "dev": "bun run --watch index.js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

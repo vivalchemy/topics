@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat App</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+    <style>
+    :root{
+      --pico-spacing:0rem;
+    }
+    </style>
+  </head>
+  <body style="padding: 2rem 5rem">
+    <h1>Chatting</h1>
+    <!--made to use ondemand socket connection-->
+    <!--<button onclick="createConnection()">Create socket connection</button>-->
+    <div style="display: flex;gap: 2rem;">
+      <input type="text" name="room" id="room" placeholder="Enter room"/>
+      <button id="joinBtn" onclick="joinRoom()">Join Room</button>
+    </div>
+    <div style="display: flex;gap: 2rem;">
+      <input type="text" name="message" id="message" placeholder="Enter message"/>
+      <button id="sendBtn" onclick="sendMessage()">Send</button>
+    </div>
+
+    <div id="chat-history">
+
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+    // bindings
+    const sendBtn = document.getElementById('sendBtn');
+    const message = document.getElementById('message');
+    const room = document.getElementById('room');
+    const chatHistory = document.getElementById('chat-history');
+
+    const socket = io("http://localhost:9000") // server url
+
+    // receive the message from the server
+    socket.on('server-message', (senderId, message) => {
+      newMessage(senderId, message) // socket.id doesn't work since it is the id of the current client not the sender's id
+      console.log(message, " Message Received from server: ", senderId)
+    })
+
+
+    // send the message to the server
+    function sendMessage(){
+      let messageText = message.value
+      let roomId = room.value
+      newMessage(socket.id, messageText) // socket.id doesn't work since it is the id of the current client not the sender's id
+      console.log(messageText, " Message from client: ", socket.id)
+      socket.emit('client-message',messageText, roomId)
+    }
+
+    // to make multiple people join the same room
+    function joinRoom(){
+      let roomId = room.value
+      //socket.emit('join-room', roomId) // this is a basic setup for joining a room from client side
+      // you can pass callback function that will be executed on the server
+      socket.emit('join-room', roomId, (message) => {
+        const newMessage = document.createElement('p')
+        newMessage.textContent = message
+        newMessage.style.margin = "0.5rem"
+        newMessage.style.padding = "1rem"
+        newMessage.style.fontSize = "1.5rem"
+        newMessage.style.backgroundColor = "grey"
+        newMessage.style.borderRadius = "0.5rem"
+        newMessage.style.textAlign = "center"
+        chatHistory.appendChild(newMessage)
+      })
+    }
+
+    // create an html element to display the messages
+    function newMessage(sender, message) {
+      const newMessage = document.createElement('p')
+      newMessage.textContent = sender + ": " + message
+      if (sender.trim() === socket.id) {
+        newMessage.style.color = 'blue'
+      }else {
+        newMessage.style.color = 'green'
+      }
+      newMessage.style.margin = "0.5rem"
+      newMessage.style.padding = "1rem"
+      newMessage.style.backgroundColor = "lightgray"
+      newMessage.style.borderRadius = "0.5rem"
+      chatHistory.appendChild(newMessage)
+    }
+    // made to use on demand socket connection
+    //const createConnection = () => {
+    //  const socket = io();
+    //}
+    </script>
+  </body>
+</html>
