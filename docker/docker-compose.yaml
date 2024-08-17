@@ -1,0 +1,22 @@
+services:
+  # This is a svelte app
+  app1:
+    # image: node:latest # use this if you want to use and image instead of a dockerfile
+    build: ./app1 # this uses the dockerfile
+    container_name: client_vivian
+    # restart: always # use this if you want to restart the container
+    # mostly used when one service is dependent on another(e.g. client is dependent on server for api) 
+    ports:
+      - '3000:5173'
+    volumes:
+      - ./app1:/app
+      - /app/node_modules
+  # This is another svelte app can be a server in some other scneario
+  app2:
+    build: ./app2
+    container_name: server_vivian 
+    ports:
+      - '4000:5173'
+    volumes:
+      - ./app2:/app
+      - /app/node_modules
