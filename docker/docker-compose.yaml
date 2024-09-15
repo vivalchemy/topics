@@ -11,6 +11,16 @@ services:
     volumes:
       - ./app1:/app
       - /app/node_modules
+    # this is required if you want to debug the internals of the container
+    stdin_open: true
+    tty: true
+    # this is extremely useful it rebuilds the container when the package.json or bun.lockb changes
+    develop:
+      watch:
+        - action: rebuild
+          path: ./package.json
+        - action: rebuild
+          path: ./bun.lockb
   # This is another svelte app can be a server in some other scneario
   app2:
     build: ./app2
@@ -20,3 +30,11 @@ services:
     volumes:
       - ./app2:/app
       - /app/node_modules
+    stdin_open: true
+    tty: true
+    develop:
+      watch:
+        - action: rebuild
+          path: ./package.json
+        - action: rebuild
+          path: ./bun.lockb
