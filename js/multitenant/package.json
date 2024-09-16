@@ -1,0 +1,37 @@
+{
+  "name": "multitenant-feature",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
+    "db:generate": "bun x drizzle-kit generate",
+    "db:migrate": "bun run ./src/lib/drizzle/migrate.ts",
+    "db": "bun run db:generate && bun run db:migrate"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^4.0.0-next.7",
+    "@tsconfig/svelte": "^5.0.4",
+    "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.24.2",
+    "svelte": "^5.0.0-next.246",
+    "svelte-check": "^3.8.6",
+    "tailwindcss": "^3.4.11",
+    "tslib": "^2.7.0",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.5"
+  },
+  "dependencies": {
+    "bits-ui": "^0.21.13",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.33.0",
+    "lucide-svelte": "^0.441.0",
+    "mode-watcher": "^0.4.1",
+    "postgres": "^3.4.4",
+    "tailwind-merge": "^2.5.2",
+    "tailwind-variants": "^0.2.1"
+  }
+}

@@ -1,0 +1,37 @@
+services:
+  web:
+    container_name: web
+    depends_on:
+      db:
+        condition: service_healthy
+    build: .
+    ports:
+      - 3000:3000  # Maps port 5173 in the container to port 3000 on the host
+    volumes:
+      - .:/app       # Mounts the current directory to /app in the container
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    develop:
+      watch:
+        - action: rebuild
+          path: ./package.json
+        - action: rebuild
+          path: ./bun.lockb
+    healthcheck:
+      test: ["CMD-SHELL", "ping localhost -p 3000 -c 5 || exit 1"]
+      interval: 10s
+      retries: 5
+  db:
+    image: postgres:alpine3.19
+    container_name: db
+    env_file:
+      - ./.env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 10s
+      retries: 5
