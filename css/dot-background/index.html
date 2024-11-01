@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dot Background</title>
+    <style>
+        /* Set body to fill the whole viewport */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #000000;
+            overflow: hidden;
+        }
+
+        /* Create a dot background */
+        .dot-background {
+            width: 100vw;
+            height: 100vh;
+            background-size: 20px 20px; /* Adjust size for dot spacing */
+            background-image: radial-gradient(circle, rgba(255,255,255, 0.3) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dot-background"></div>
+</body>
+</html>
