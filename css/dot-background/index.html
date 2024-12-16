@@ -21,12 +21,36 @@
         .dot-background {
             width: 100vw;
             height: 100vh;
-            background-size: 20px 20px; /* Adjust size for dot spacing */
+          overflow: auto;
+            background-size: 30px 30px; /* Adjust size for dot spacing */
+            border: 1px solid #ffffff;
             background-image: radial-gradient(circle, rgba(255,255,255, 0.3) 1px, transparent 1px);
+        }
+
+        .container{
+          /*height: 100vh;*/
+          /*display:grid;*/
+          /*place-items:center;*/
+          position: relative;
+          z-index: 10;
+          color: #ffffff;
         }
     </style>
 </head>
 <body>
-    <div class="dot-background"></div>
+    <div class="dot-background">
+      <div class="container">
+        <h1>Dot Background</h1>
+      </div>
+      <div class="container">
+        <h1>Dot Background</h1>
+      </div>
+      <div class="container">
+        <h1>Dot Background</h1>
+      </div>
+      <div class="container">
+        <h1>Dot Background</h1>
+      </div>
+    </div>
 </body>
 </html>
