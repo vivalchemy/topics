@@ -1,0 +1,16 @@
+package main
+
+type Person struct {
+	Name string
+	Age  int8
+}
+
+templ Hello(name string) {
+	<div>Hello, { name }</div>
+}
+
+templ Greeting(person Person) {
+	<div class="greeting">
+		@Hello(person.Name)
+	</div>
+}
