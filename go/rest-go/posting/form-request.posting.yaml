@@ -1,0 +1,12 @@
+name: form-request
+url: http://localhost:8080/form
+body:
+  form_data:
+  - name: name
+    value: vivian
+  - name: surname
+    value: ludrick
+  content_type: application/x-www-form-urlencoded
+headers:
+- name: content-type
+  value: application/x-www-form-urlencoded

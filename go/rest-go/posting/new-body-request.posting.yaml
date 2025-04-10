@@ -1,0 +1,11 @@
+name: new_body_request
+url: http://localhost:8080/body
+body:
+  content: |-
+    {
+      "title":"this is the title"
+    }
+  content_type: application/json
+headers:
+- name: content-type
+  value: application/json
