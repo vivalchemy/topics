@@ -9,11 +9,11 @@ gen/proto:
 	@echo "Generating proto files"
 	@protoc --proto_path=proto proto/*.proto --go_out=. --go-grpc_out=.
 
-dev:
+dev: gen
 	@echo "Starting development containers"
 	@docker compose --profile development up --build --watch
 
-prod:
+prod: gen
 	@echo "Starting production containers"
 	@docker compose --profile production up --build
 
