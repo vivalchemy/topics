@@ -1,0 +1,12 @@
+name: Post Comment
+method: POST
+url: http://localhost:3000/api/v1/comments
+body:
+  content: |-
+    {
+      "text":"This is a comment"
+    }
+  content_type: application/json
+headers:
+- name: content-type
+  value: application/json

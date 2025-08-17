@@ -1,0 +1,104 @@
+services:
+  rabbitmq:
+    image: rabbitmq:alpine
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASSWORD: guest
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - internal-net
+
+  producer-production:
+    build: 
+      context: ./producer
+      target: rabbitmq-producer-production
+    container_name: rabbitmq-producer-production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+    networks:
+      - internal-net
+      - public-net
+    restart: unless-stopped
+    profiles: [production]
+
+  consumer-production:
+    build: 
+      context: ./consumer
+      target: rabbitmq-consumer-production
+    container_name: rabbitmq-consumer-production
+    networks:
+      - internal-net
+    restart: unless-stopped
+    depends_on:
+      - rabbitmq
+      - producer-production
+    profiles: [production]
+
+  producer-development:
+    build: 
+      context: ./producer
+      target: rabbitmq-producer-development
+    container_name: rabbitmq-producer-dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+    networks:
+      - internal-net
+      - public-net
+    restart: unless-stopped
+    develop:
+      watch:
+        - action: rebuild
+          path: ./producer/go.sum
+        - action: rebuild
+          path: ./producer/go.mod
+        - action: rebuild
+          path: ./go.work
+        - action: rebuild
+          path: ./go.work.sum
+          
+        - action: sync+restart
+          path: ./producer
+          target: /app/producer
+    profiles: [development, default]
+
+  consumer-development:
+    build: 
+      context: ./consumer
+      target: rabbitmq-consumer-development
+    container_name: rabbitmq-consumer-dev
+    networks:
+      - internal-net
+    restart: unless-stopped
+    depends_on:
+      - rabbitmq
+      - producer-development
+    develop:
+      watch:
+        - action: rebuild
+          path: ./consumer/go.sum
+        - action: rebuild
+          path: ./consumer/go.mod
+        - action: rebuild
+          path: ./go.work
+        - action: rebuild
+          path: ./go.work.sum
+          
+        - action: sync+restart
+          path: ./consumer
+          target: /app/consumer
+    profiles: [development, default]
+
+networks:
+  internal-net:
+    internal: true
+  public-net:
+    driver: bridge
