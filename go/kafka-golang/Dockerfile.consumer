@@ -1,0 +1,45 @@
+FROM golang:alpine AS kafka-consumer-builder
+
+WORKDIR /app
+
+COPY  ./go.work ./go.work.sum ./
+
+COPY ./consumer/go.mod ./consumer/go.sum ./consumer/
+COPY ./producer/go.mod ./producer/go.sum ./producer/
+
+RUN go mod download
+
+COPY ./consumer ./consumer
+
+WORKDIR /app/consumer
+RUN CGO_ENABLED=0 GOOS=linux go build \
+  -ldflags="-s -w -extldflags '-static'" \
+  -gcflags="-l=4" \
+  -a -installsuffix cgo \
+  -o /go/bin/app .
+
+
+FROM alpine:latest AS kafka-consumer-production
+# RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=kafka-consumer-builder /go/bin/app .
+EXPOSE 3000
+CMD ["./app"]
+
+
+FROM golang:alpine AS kafka-consumer-development
+
+WORKDIR /app
+
+COPY  ./go.work ./go.work.sum ./
+
+COPY ./consumer/go.mod ./consumer/go.sum ./consumer/
+COPY ./producer/go.mod ./producer/go.sum ./producer/
+
+RUN go mod download
+
+COPY ./consumer ./consumer
+
+WORKDIR /app/consumer
+
+CMD ["go", "run", "main.go"]

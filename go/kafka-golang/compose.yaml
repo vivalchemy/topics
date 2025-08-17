@@ -1,0 +1,110 @@
+services:
+  kafka-broker:
+    image: apache/kafka:latest
+    container_name: kafka-broker
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://kafka-broker:29092,CONTROLLER://kafka-broker:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-broker:29093"
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    networks:
+      - internal-net
+
+  producer-production:
+    build: 
+      context: .
+      dockerfile: Dockerfile.producer
+      target: kafka-producer-production
+    container_name: kafka-producer-production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - kafka-broker
+    networks:
+      - internal-net
+      - public-net
+    restart: unless-stopped
+    profiles: [production]
+
+  consumer-production:
+    build: 
+      context: .
+      dockerfile: Dockerfile.consumer
+      target: kafka-consumer-production
+    container_name: kafka-consumer-production
+    networks:
+      - internal-net
+    restart: unless-stopped
+    depends_on:
+      - kafka-broker
+      - producer-production
+    profiles: [production]
+
+  producer-development:
+    build: 
+      context: .
+      dockerfile: Dockerfile.producer
+      target: kafka-producer-development
+    container_name: kafka-producer-dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - kafka-broker
+    networks:
+      - internal-net
+      - public-net
+    restart: unless-stopped
+    develop:
+      watch:
+        - action: rebuild
+          path: ./producer/go.sum
+        - action: rebuild
+          path: ./producer/go.mod
+        - action: rebuild
+          path: ./go.work
+        - action: rebuild
+          path: ./go.work.sum
+          
+        - action: sync+restart
+          path: ./producer
+          target: /app/producer
+    profiles: [development, default]
+
+  consumer-development:
+    build: 
+      context: .
+      dockerfile: Dockerfile.consumer
+      target: kafka-consumer-development
+    container_name: kafka-consumer-dev
+    networks:
+      - internal-net
+    restart: unless-stopped
+    depends_on:
+      - kafka-broker
+      - producer-development
+    develop:
+      watch:
+        - action: rebuild
+          path: ./consumer/go.sum
+        - action: rebuild
+          path: ./consumer/go.mod
+        - action: rebuild
+          path: ./go.work
+        - action: rebuild
+          path: ./go.work.sum
+          
+        - action: sync+restart
+          path: ./consumer
+          target: /app/consumer
+    profiles: [development, default]
+
+networks:
+  internal-net:
+    internal: true
+  public-net:
+    driver: bridge

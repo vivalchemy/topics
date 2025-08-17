@@ -1,0 +1,11 @@
+.posting
+Dockerfile*
+docker-compose*
+compose*
+.git
+.gitignore
+.dockerignore
+README.md
+LICENSE
+.vscode
+Makefile
