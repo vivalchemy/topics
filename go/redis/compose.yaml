@@ -1,0 +1,59 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    env_file:
+      - ./.env
+    networks:
+      - internal-net
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -h localhost ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  app-prod:
+    build:
+      context: .
+      target: app-production
+    container_name: redis-app-golang
+    depends_on:
+      - redis
+    env_file:
+      - ./.env
+    networks:
+      - internal-net
+    restart: unless-stopped
+    profiles:
+      - production
+
+  app-dev:
+    build:
+      context: .
+      target: app-development
+    container_name: redis-app-golang
+    depends_on:
+      - redis
+    env_file:
+      - ./.env
+    networks:
+      - internal-net
+    restart: unless-stopped
+    profiles:
+      - development
+      - default
+    develop:
+      watch:
+        - action: rebuild
+          path: ./go.mod
+        - action: rebuild
+          path: ./go.sum
+        - action: sync+restart
+          path: ./
+          target: /app
+
+networks:
+  internal-net:
+    internal: true
